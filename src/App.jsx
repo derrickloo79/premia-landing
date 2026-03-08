@@ -37,25 +37,75 @@ function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 2 }) {
   );
 }
 
-function SliderInput({ label, value, onChange, min, max, step, format, sublabel }) {
+function NumberField({ label, value, onChange, min, max, step, prefix, suffix, sublabel, stepper, allowEmpty }) {
+  const [raw, setRaw] = useState(value === null ? "" : String(value));
+  const focusedRef = useRef(false);
+
+  useEffect(() => {
+    if (!focusedRef.current) {
+      setRaw(value === null ? "" : String(value));
+    }
+  }, [value]);
+
+  const commit = (rawStr) => {
+    if (rawStr === "") {
+      if (allowEmpty) { onChange(null); return; }
+      const safe = value ?? min;
+      setRaw(String(safe));
+      onChange(safe);
+      return;
+    }
+    const parsed = parseFloat(rawStr);
+    if (isNaN(parsed)) {
+      setRaw(value === null ? "" : String(value));
+    } else {
+      const clamped = Math.min(max, Math.max(min, parsed));
+      onChange(clamped);
+      setRaw(String(clamped));
+    }
+  };
+
   return (
     <div className="input-group">
-      <div className="input-label-row">
-        <span className="input-label">{label}</span>
-        <span className="input-value">{format(value)}</span>
-      </div>
-      {sublabel && <span className="input-sublabel">{sublabel}</span>}
-      <div className="slider-track-wrap">
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value))}
-          className="slider"
-          style={{ "--pct": `${((value - min) / (max - min)) * 100}%` }}
-        />
+      <div className="input-field-row">
+        <div className="input-field-label">
+          <span className="input-label">{label}</span>
+          {sublabel && <span className="input-sublabel">{sublabel}</span>}
+        </div>
+        <div className="number-field-wrap">
+          {stepper && (
+            <button className="stepper-btn" onClick={() => {
+              const v = Math.max(min, (value ?? min) - step);
+              onChange(v); setRaw(String(v));
+            }}>−</button>
+          )}
+          {prefix && <span className="input-affix">{prefix}</span>}
+          <input
+            type="number"
+            min={min}
+            max={max}
+            step={step}
+            value={raw}
+            onChange={(e) => {
+              const v = e.target.value;
+              setRaw(v);
+              if (v === "" && allowEmpty) { onChange(null); return; }
+              const parsed = parseFloat(v);
+              if (!isNaN(parsed)) onChange(parsed);
+            }}
+            onFocus={() => { focusedRef.current = true; }}
+            onBlur={(e) => { focusedRef.current = false; commit(e.target.value); }}
+            className="num-input"
+            placeholder={allowEmpty ? "—" : undefined}
+          />
+          {suffix && <span className="input-affix input-affix-suffix">{suffix}</span>}
+          {stepper && (
+            <button className="stepper-btn stepper-plus" onClick={() => {
+              const v = Math.min(max, (value ?? min) + step);
+              onChange(v); setRaw(String(v));
+            }}>+</button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -139,19 +189,21 @@ function Nav() {
 export default function App() {
   // Calculator state
   const [strategy, setStrategy] = useState("csp");
-  const [premium, setPremium] = useState(2.50);
-  const [strike, setStrike] = useState(450);
+  const [premium, setPremium] = useState(0.50);
+  const [strike, setStrike] = useState(50.0);
   const [contracts, setContracts] = useState(1);
   const [daysHeld, setDaysHeld] = useState(30);
-  const [closingPremium, setClosingPremium] = useState(0);
+  const [closingPremium, setClosingPremium] = useState(null);
 
-  const collateral = strike * 100 * contracts;
-  const grossPremium = premium * 100 * contracts;
-  const closingCost = closingPremium * 100 * contracts;
+  const cp = closingPremium ?? 0;
+  const hasRequired = premium !== null && strike !== null && daysHeld !== null;
+  const collateral = hasRequired ? strike * 100 * contracts : 0;
+  const grossPremium = hasRequired ? premium * 100 * contracts : 0;
+  const closingCost = hasRequired ? cp * 100 * contracts : 0;
   const netPremium = grossPremium - closingCost;
-  const roi = (netPremium / collateral) * 100;
-  const thirtyDayRoi = (roi / daysHeld) * 30;
-  const breakeven = strategy === "csp" ? strike - premium + closingPremium : strike + premium - closingPremium;
+  const roi = hasRequired && collateral > 0 ? (netPremium / collateral) * 100 : 0;
+  const thirtyDayRoi = hasRequired && daysHeld > 0 ? (roi / daysHeld) * 30 : 0;
+  const breakeven = hasRequired ? (strategy === "csp" ? strike - premium + cp : strike + premium - cp) : 0;
 
   return (
     <>
@@ -191,6 +243,7 @@ export default function App() {
           line-height: 1.6;
           -webkit-font-smoothing: antialiased;
         }
+        p { font-size: 1.125rem; }
 
         /* NAV */
         .nav {
@@ -391,7 +444,7 @@ export default function App() {
           max-width: 1100px; margin: 0 auto;
         }
         .section-label {
-          font-family: var(--font-mono); font-size: 0.7rem;
+          font-family: var(--font-mono); font-size: 0.75rem;
           color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase;
           margin-bottom: 0.75rem; display: block;
         }
@@ -400,7 +453,7 @@ export default function App() {
           line-height: 1.1; margin-bottom: 1rem;
         }
         .section-sub {
-          color: var(--text-dim); font-size: 1rem; max-width: 480px; margin-bottom: 3rem;
+          color: var(--text-dim);  max-width: 480px; margin-bottom: 3rem;
         }
 
         /* CALCULATOR */
@@ -430,58 +483,69 @@ export default function App() {
         }
 
         /* Inputs */
-        .input-group { margin-bottom: 1.75rem; }
-        .input-label-row {
-          display: flex; justify-content: space-between; align-items: baseline;
-          margin-bottom: 0.4rem;
-        }
+        .input-group { margin-bottom: 1.6rem; }
+        .input-field-row { display: flex; align-items: center; gap: 1rem; }
+        .input-field-label { flex: 0 0 50%; display: flex; flex-direction: column; gap: 0.15rem; }
+        .input-field-row .number-field-wrap { flex: 1; min-width: 0; margin-top: 0; }
         .input-label {
-          font-size: 0.8rem; font-weight: 400; letter-spacing: 0.06em;
+          display: block; font-size: 1rem; font-weight: 400; letter-spacing: 0.06em;
           text-transform: uppercase; color: var(--text-dim);
         }
-        .input-value {
-          font-family: var(--font-mono); font-size: 0.95rem;
-          color: var(--text); font-weight: 400;
+        .input-sublabel { font-size: 0.875rem; color: var(--text-muted); display: block; }
+        .number-field-wrap {
+          display: flex; align-items: stretch;
+          background: var(--bg); border: 1px solid var(--border-strong);
+          border-radius: 4px; overflow: hidden;
+          transition: border-color 0.2s;
         }
-        .input-sublabel { font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.6rem; }
-        .slider-track-wrap { position: relative; }
-        .slider {
-          -webkit-appearance: none; appearance: none;
-          width: 100%; height: 2px; outline: none; cursor: pointer;
-          background: linear-gradient(to right, var(--gold) 0%, var(--gold) var(--pct, 50%), rgba(255,255,255,0.1) var(--pct, 50%), rgba(255,255,255,0.1) 100%);
-          border-radius: 2px;
+        .number-field-wrap:focus-within { border-color: rgba(201,168,76,0.4); }
+        .num-input {
+          flex: 1; min-width: 0; background: transparent; border: none; outline: none;
+          color: var(--text); font-family: var(--font-mono); font-size: 0.95rem;
+          padding: 0.6rem 0.75rem;
+          -moz-appearance: textfield;
         }
-        .slider::-webkit-slider-thumb {
-          -webkit-appearance: none; appearance: none;
-          width: 14px; height: 14px; border-radius: 50%;
-          background: var(--gold); border: 2px solid var(--surface);
-          cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
-          box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+        .num-input::-webkit-outer-spin-button,
+        .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .input-affix {
+          font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);
+          padding: 0 0.6rem; background: var(--surface-2);
+          border-right: 1px solid var(--border);
+          display: flex; align-items: center; white-space: nowrap;
         }
-        .slider::-webkit-slider-thumb:hover { transform: scale(1.3); box-shadow: 0 0 0 6px rgba(201,168,76,0.2); }
+        .input-affix-suffix { border-right: none; border-left: 1px solid var(--border); }
+        .stepper-btn {
+          background: var(--surface-2); border: none; cursor: pointer;
+          color: var(--text-dim); font-size: 1.1rem; font-weight: 300;
+          padding: 0 0.9rem; transition: all 0.15s;
+          display: flex; align-items: center; line-height: 1;
+        }
+        .stepper-btn:first-child { border-right: 1px solid var(--border); }
+        .stepper-plus { border-left: 1px solid var(--border); }
+        .stepper-btn:hover { background: var(--gold-dim); color: var(--gold); }
 
         /* Results */
         .results-panel {
           background: var(--bg);
           border: 1px solid var(--border);
-          border-radius: 8px; padding: 2rem;
+          border-radius: 8px; padding: 1.6rem;
           position: sticky; top: 6rem;
         }
         .results-header {
-          font-family: var(--font-mono); font-size: 0.7rem;
+          font-family: var(--font-mono); font-size: 0.75rem;
           color: var(--text-muted); letter-spacing: 0.15em; text-transform: uppercase;
-          margin-bottom: 1.5rem; padding-bottom: 1rem;
+          padding-bottom: 1rem; /* margin-bottom: 1.5rem; */
           border-bottom: 1px solid var(--border);
         }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 1px; }
         .stat-card {
-          background: var(--surface); padding: 1.2rem 1rem;
+          background: var(--surface); padding: 1rem 1rem;
           display: flex; flex-direction: column; gap: 0.35rem;
         }
         .stat-card.accent { background: var(--gold-dim); }
         .stat-card.large { grid-column: span 2; }
         .stat-label {
-          font-family: var(--font-mono); font-size: 0.65rem;
+          font-family: var(--font-mono); font-size: 0.75rem;
           color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase;
         }
         .stat-value {
@@ -492,7 +556,7 @@ export default function App() {
         .stat-card.large .stat-value { font-size: 1.3rem; }
 
         .roi-big {
-          text-align: center; padding: 1.5rem 0 1rem;
+          text-align: center; padding: 1.2rem 0;
           border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
         }
         .roi-num {
@@ -500,12 +564,12 @@ export default function App() {
           color: var(--gold); line-height: 1; display: block;
         }
         .roi-label {
-          font-family: var(--font-mono); font-size: 0.65rem;
+          font-family: var(--font-mono); font-size: 0.75rem;
           color: var(--text-muted); letter-spacing: 0.2em; text-transform: uppercase;
           margin-top: 0.35rem; display: block;
         }
 
-        .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+        .divider { height: 1px; background: var(--border); margin: 1.5rem 0 1rem; }
 
         /* FEATURES */
         .features-grid {
@@ -515,7 +579,7 @@ export default function App() {
         }
         @media (max-width: 768px) { .features-grid { grid-template-columns: 1fr; } }
         .feature-card {
-          background: var(--surface); padding: 2rem;
+          background: var(--surface); padding: 1.6rem;
           transition: background 0.2s;
         }
         .feature-card:hover { background: var(--surface-2); }
@@ -523,10 +587,10 @@ export default function App() {
           font-size: 1.5rem; margin-bottom: 1rem; display: block;
         }
         .feature-title {
-          font-family: var(--font-display); font-size: 1.25rem;
+          font-family: var(--font-display); font-size: 1.5rem;
           margin-bottom: 0.5rem;
         }
-        .feature-body { font-size: 0.875rem; color: var(--text-dim); line-height: 1.7; }
+        .feature-body { color: var(--text-dim); line-height: 1.7; }
 
         /* FOOTER */
         footer {
@@ -622,51 +686,55 @@ export default function App() {
             <div>
               <div className="strategy-toggle">
                 <button className={`strategy-btn ${strategy === "csp" ? "active" : ""}`} onClick={() => setStrategy("csp")}>
-                  Cash-Secured Put
+                  Sell Put
                 </button>
                 <button className={`strategy-btn ${strategy === "cc" ? "active" : ""}`} onClick={() => setStrategy("cc")}>
-                  Covered Call
+                  Sell Call
                 </button>
               </div>
 
-              <SliderInput
+              <NumberField
                 label="Premium Received"
                 value={premium}
                 onChange={setPremium}
                 min={0.01} max={10} step={0.01}
-                format={(v) => `$${v.toFixed(2)}/contract`}
+                prefix="$"
                 sublabel="Per-share premium collected at open"
+                allowEmpty
               />
-              <SliderInput
+              <NumberField
                 label="Strike Price"
                 value={strike}
                 onChange={setStrike}
-                min={1} max={500} step={0.5}
-                format={(v) => `$${v.toFixed(1)}`}
+                min={1} max={1000} step={0.5}
+                prefix="$"
                 sublabel={strategy === "csp" ? "You're obligated to buy at this price" : "You're obligated to sell at this price"}
+                allowEmpty
               />
-              <SliderInput
+              <NumberField
                 label="Contracts"
                 value={contracts}
                 onChange={setContracts}
                 min={1} max={50} step={1}
-                format={(v) => `${v} × 100 shares`}
+                stepper
               />
-              <SliderInput
+              <NumberField
                 label="Days Held"
                 value={daysHeld}
                 onChange={setDaysHeld}
                 min={1} max={180} step={1}
-                format={(v) => `${v} days`}
+                suffix="days"
                 sublabel="Used to calculate annualized ROI"
+                allowEmpty
               />
-              <SliderInput
+              <NumberField
                 label="Closing Premium (optional)"
                 value={closingPremium}
                 onChange={setClosingPremium}
-                min={0} max={premium} step={0.01}
-                format={(v) => v === 0 ? "Held to expiry" : `$${v.toFixed(2)}/contract`}
+                min={0} max={10} step={0.01}
+                prefix="$"
                 sublabel="Cost to buy back the contract early"
+                allowEmpty
               />
             </div>
 
@@ -716,7 +784,7 @@ export default function App() {
                 </div>
 
                 <div className="divider" />
-                <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)", lineHeight: 1.6 }}>
+                <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)", lineHeight: 1.6 }}>
                   ROI = Net Premium ÷ (Strike × 100 × Contracts)<br />
                   30-Day ROI = ROI ÷ Days × 30
                 </p>
