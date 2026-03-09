@@ -591,7 +591,7 @@ export default function App() {
         }
         .feature-body { color: var(--text-dim); line-height: 1.7; }
 
-        p a { color: var(--gold); }
+        p a { color: var(--gold); text-decoration: none; }
         p a:hover { color: var(--gold-light); }
 
         /* FOOTER */
@@ -605,6 +605,9 @@ export default function App() {
         }
         .footer-logo { font-family: var(--font-display); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
         .footer-copy { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
+        .footer-copy a { color: var(--gold); text-decoration: none; }
+        .footer-copy a:hover { color: var(--gold-light); }
+
         @media (max-width: 768px) {
           .footer-inner { flex-direction: column; gap: 0.75rem; text-align: center; }
         }
@@ -850,7 +853,7 @@ export default function App() {
           <div className="footer-logo">
             <span style={{ color: "var(--gold)" }}>◈</span> Premia
           </div>
-          <div className="footer-copy">© 2026 Premia · Built for premium sellers</div>
+          <div className="footer-copy">© 2026 Premia · Built for premium sellers by <a href="https://derrickloo.design" target="_blank" rel="noopener noreferrer">Derrick Loo</a></div>
         </div>
       </footer>
     </>
