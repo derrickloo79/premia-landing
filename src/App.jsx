@@ -148,7 +148,7 @@ function Nav() {
           <div className="nav-links nav-desktop">
             <a href="#calculator" className="nav-link">Calculator</a>
             <a href="#features" className="nav-link">Features</a>
-            <a href="#" className="nav-cta">Get Started</a>
+            <a href="https://tally.so/r/EkxMRX" target="_blank"  className="nav-cta">Get Started</a>
           </div>
           <button className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Open menu">
             <span className="ham-line" />
@@ -418,8 +418,7 @@ export default function App() {
         }
         .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.2); }
         .btn-ghost {
-          color: var(--text-dim); font-size: 0.875rem; text-decoration: none;
-          letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.4rem;
+          color: var(--text-dim); font-size: 0.875rem; text-decoration: none; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.4rem;
           transition: color 0.2s;
         }
         .btn-ghost:hover { color: var(--text); }
@@ -655,7 +654,7 @@ export default function App() {
           </p>
           <div className="hero-actions fade-up-4">
             <a href="#calculator" className="btn-primary">Try the Calculator</a>
-            <a href="#" className="btn-ghost">Sign up free →</a>
+            <a href="https://tally.so/r/EkxMRX" target="_blank" className="btn-ghost">Sign up free →</a>
           </div>
 
           <div className="hero-ticker">
@@ -826,7 +825,7 @@ export default function App() {
             <span className="section-label" style={{ justifyContent: "center", display: "block" }}>// start tracking</span>
             <h2 className="section-title">Ready to trade with<br /><em style={{ fontFamily: "var(--font-display)", color: "var(--gold)", fontStyle: "italic" }}>intention</em>?</h2>
             <p style={{ color: "var(--text-dim)", marginBottom: "2rem" }}>Join income investors who track every premium with precision.</p>
-            <a href="#" className="btn-primary" style={{ fontSize: "0.9rem", padding: "0.9rem 2.5rem" }}>Create Free Account →</a>
+            <a href="https://tally.so/r/EkxMRX" target="_blank" className="btn-primary" style={{ fontSize: "0.9rem", padding: "0.9rem 2.5rem" }}>Create Free Account →</a>
           </div>
         </div>
       </section>
@@ -836,7 +835,7 @@ export default function App() {
           <div className="footer-logo">
             <span style={{ color: "var(--gold)" }}>◈</span> Premia
           </div>
-          <div className="footer-copy">© 2025 Premia · Built for premium sellers</div>
+          <div className="footer-copy">© 2026 Premia · Built for premium sellers</div>
         </div>
       </footer>
     </>
