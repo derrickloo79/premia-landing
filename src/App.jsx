@@ -148,7 +148,6 @@ function Nav() {
           <div className="nav-links nav-desktop">
             <a href="#calculator" className="nav-link">Calculator</a>
             <a href="#features" className="nav-link">Features</a>
-            <a href="https://tally.so/r/EkxMRX" target="_blank"  className="nav-cta">Get Started</a>
           </div>
           <button className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Open menu">
             <span className="ham-line" />
@@ -177,10 +176,6 @@ function Nav() {
             <span className="drawer-link-icon">⊕</span> Features
           </a>
         </nav>
-        <div className="drawer-footer">
-          <a href="#" className="btn-primary drawer-cta" onClick={closeDrawer}>Get Started →</a>
-          <p className="drawer-footnote">Track every premium you earn.</p>
-        </div>
       </div>
     </>
   );
@@ -194,6 +189,26 @@ export default function App() {
   const [contracts, setContracts] = useState(1);
   const [daysHeld, setDaysHeld] = useState(30);
   const [closingPremium, setClosingPremium] = useState(null);
+
+  useEffect(() => {
+    const container = document.getElementById("bmc-button-wrap");
+    if (!container) return;
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
+    script.dataset.name = "bmc-button";
+    script.dataset.slug = "veggeloo";
+    script.dataset.color = "#FFDD00";
+    script.dataset.emoji = "☕";
+    script.dataset.font = "Inter";
+    script.dataset.text = "Buy me a coffee";
+    script.dataset.outlineColor = "#000000";
+    script.dataset.fontColor = "#000000";
+    script.dataset.coffeeColor = "#ffffff";
+    script.async = true;
+    container.appendChild(script);
+    return () => { try { container.removeChild(script); } catch {} };
+  }, []);
 
   const cp = closingPremium ?? 0;
   const hasRequired = premium !== null && strike !== null && daysHeld !== null;
@@ -654,7 +669,6 @@ export default function App() {
           </p>
           <div className="hero-actions fade-up-4">
             <a href="#calculator" className="btn-primary">Try the Calculator</a>
-            <a href="https://tally.so/r/EkxMRX" target="_blank" className="btn-ghost">Sign up free →</a>
           </div>
 
           <div className="hero-ticker">
@@ -818,15 +832,16 @@ export default function App() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section style={{ paddingTop: "2rem", paddingBottom: "6rem" }}>
-        <div className="section-inner" style={{ textAlign: "center" }}>
-          <div style={{ maxWidth: 560, margin: "0 auto" }}>
-            <span className="section-label" style={{ justifyContent: "center", display: "block" }}>// start tracking</span>
-            <h2 className="section-title">Ready to trade with<br /><em style={{ fontFamily: "var(--font-display)", color: "var(--gold)", fontStyle: "italic" }}>intention</em>?</h2>
-            <p style={{ color: "var(--text-dim)", marginBottom: "2rem" }}>Join income investors who track every premium with precision.</p>
-            <a href="https://tally.so/r/EkxMRX" target="_blank" className="btn-primary" style={{ fontSize: "0.9rem", padding: "0.9rem 2.5rem" }}>Create Free Account →</a>
-          </div>
+
+      {/* BUY ME A COFFEE */}
+      <section style={{ padding: "4rem 2rem", borderTop: "1px solid var(--border)", textAlign: "center" }}>
+        <div className="section-inner">
+          <span className="section-label" style={{ display: "block" }}>// support the project</span>
+          <h2 className="section-title">Enjoy using Premia?</h2>
+          <p style={{ color: "var(--text-dim)", marginBottom: "2rem", maxWidth: 480, margin: "0 auto 2rem" }}>
+            If this tool helped you think more clearly about your trades, consider buying me a coffee.
+          </p>
+          <div id="bmc-button-wrap" style={{ display: "flex", justifyContent: "center" }} />
         </div>
       </section>
 
