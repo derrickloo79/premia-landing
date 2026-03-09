@@ -190,25 +190,6 @@ export default function App() {
   const [daysHeld, setDaysHeld] = useState(30);
   const [closingPremium, setClosingPremium] = useState(null);
 
-  useEffect(() => {
-    const container = document.getElementById("bmc-button-wrap");
-    if (!container) return;
-    const script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
-    script.dataset.name = "bmc-button";
-    script.dataset.slug = "veggeloo";
-    script.dataset.color = "#FFDD00";
-    script.dataset.emoji = "☕";
-    script.dataset.font = "Inter";
-    script.dataset.text = "Buy me a coffee";
-    script.dataset.outlineColor = "#000000";
-    script.dataset.fontColor = "#000000";
-    script.dataset.coffeeColor = "#ffffff";
-    script.async = true;
-    container.appendChild(script);
-    return () => { try { container.removeChild(script); } catch {} };
-  }, []);
 
   const cp = closingPremium ?? 0;
   const hasRequired = premium !== null && strike !== null && daysHeld !== null;
@@ -841,7 +822,13 @@ export default function App() {
           <p style={{ color: "var(--text-dim)", marginBottom: "2rem", maxWidth: 480, margin: "0 auto 2rem" }}>
             If this tool helped you think more clearly about your trades, consider buying me a coffee.
           </p>
-          <div id="bmc-button-wrap" style={{ display: "flex", justifyContent: "center" }} />
+          <a href="https://www.buymeacoffee.com/veggeloo" target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+              alt="Buy Me A Coffee"
+              style={{ height: 60, width: 217, borderRadius: 8 }}
+            />
+          </a>
         </div>
       </section>
 
