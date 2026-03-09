@@ -5,7 +5,7 @@ const formatCurrency = (val) =>
 
 const formatPct = (val) => `${val.toFixed(2)}%`;
 
-function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 2 }) {
+function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 2, commas = false }) {
   const [display, setDisplay] = useState(0);
   const rafRef = useRef(null);
   const startRef = useRef(null);
@@ -32,7 +32,7 @@ function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 2 }) {
 
   return (
     <span>
-      {prefix}{display.toFixed(decimals)}{suffix}
+      {prefix}{commas ? display.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) : display.toFixed(decimals)}{suffix}
     </span>
   );
 }
@@ -684,7 +684,7 @@ export default function App() {
         <div className="section-inner">
           <span className="section-label">// roi calculator</span>
           <h2 className="section-title">See your returns<br />before you trade.</h2>
-          <p className="section-sub">Dial in premium, strike, and duration to instantly see your net ROI and annualized return.</p>
+          <p className="section-sub">Dial in premium, strike, and duration to instantly see your net ROI and 30-day return.</p>
 
           <div className="calc-layout">
             {/* Inputs */}
@@ -777,7 +777,7 @@ export default function App() {
                   <div className="stat-card">
                     <span className="stat-label">Collateral Required</span>
                     <span className="stat-value">
-                      <AnimatedNumber value={collateral} prefix="$" decimals={0} />
+                      <AnimatedNumber value={collateral} prefix="$" decimals={0} commas />
                     </span>
                   </div>
                   <div className="stat-card">
