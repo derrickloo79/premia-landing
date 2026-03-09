@@ -148,6 +148,7 @@ function Nav() {
           <div className="nav-links nav-desktop">
             <a href="#calculator" className="nav-link">Calculator</a>
             <a href="#features" className="nav-link">Features</a>
+            <a href="https://tally.so/r/EkxMRX" target="_blank"  className="nav-cta">Get Started</a>
           </div>
           <button className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Open menu">
             <span className="ham-line" />
@@ -176,6 +177,10 @@ function Nav() {
             <span className="drawer-link-icon">⊕</span> Features
           </a>
         </nav>
+        <div className="drawer-footer">
+          <a href="#" className="btn-primary drawer-cta" onClick={closeDrawer}>Get Started →</a>
+          <p className="drawer-footnote">Track every premium you earn.</p>
+        </div>
       </div>
     </>
   );
@@ -189,7 +194,6 @@ export default function App() {
   const [contracts, setContracts] = useState(1);
   const [daysHeld, setDaysHeld] = useState(30);
   const [closingPremium, setClosingPremium] = useState(null);
-
 
   const cp = closingPremium ?? 0;
   const hasRequired = premium !== null && strike !== null && daysHeld !== null;
@@ -414,10 +418,10 @@ export default function App() {
         }
         .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.2); }
         .btn-ghost {
-          color: var(--text-dim); font-size: 0.875rem; text-decoration: none; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.4rem;
+          color: var(--gold); font-size: 0.875rem; text-decoration: none; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.4rem;
           transition: color 0.2s;
         }
-        .btn-ghost:hover { color: var(--text); }
+        .btn-ghost:hover { color: var(--gold-light); }
         .hero-ticker {
           position: absolute; right: 0; top: 50%; transform: translateY(-50%);
           display: flex; flex-direction: column; gap: 0.75rem;
@@ -587,6 +591,9 @@ export default function App() {
         }
         .feature-body { color: var(--text-dim); line-height: 1.7; }
 
+        p a { color: var(--gold); }
+        p a:hover { color: var(--gold-light); }
+
         /* FOOTER */
         footer {
           border-top: 1px solid var(--border); padding: 2rem;
@@ -650,6 +657,7 @@ export default function App() {
           </p>
           <div className="hero-actions fade-up-4">
             <a href="#calculator" className="btn-primary">Try the Calculator</a>
+            <a href="https://tally.so/r/EkxMRX" target="_blank" className="btn-ghost">Sign up free →</a>
           </div>
 
           <div className="hero-ticker">
@@ -813,22 +821,27 @@ export default function App() {
         </div>
       </section>
 
+      {/* CTA */}
+      
+    <section style={{ paddingTop: "2rem", paddingBottom: "6rem" }}>
+      <div className="section-inner" style={{ textAlign: "center" }}>
+        <div style={{ maxWidth: 560, margin: "0 auto" }}>
+          <span className="section-label" style={{ justifyContent: "center", display: "block" }}>// start tracking</span>
+          <h2 className="section-title">Ready to trade with<br /><em style={{ fontFamily: "var(--font-display)", color: "var(--gold)", fontStyle: "italic" }}>intention</em>?</h2>
+          <p style={{ color: "var(--text-dim)", marginBottom: "2rem" }}>Join income investors who track every premium with precision.</p>
+          <a href="https://tally.so/r/EkxMRX" target="_blank" className="btn-primary" style={{ fontSize: "0.9rem", padding: "0.9rem 2.5rem" }}>Create Free Account →</a>
+        </div>
+      </div>
+    </section>
 
-      {/* BUY ME A COFFEE */}
-      <section style={{ padding: "4rem 2rem", borderTop: "1px solid var(--border)", textAlign: "center" }}>
+    {/* BUY ME A COFFEE */}
+      <section style={{ padding: "4rem 2rem", textAlign: "center" }}>
         <div className="section-inner">
           <span className="section-label" style={{ display: "block" }}>// support the project</span>
           <h2 className="section-title">Enjoy using Premia?</h2>
           <p style={{ color: "var(--text-dim)", marginBottom: "2rem", maxWidth: 480, margin: "0 auto 2rem" }}>
-            If this tool helped you think more clearly about your trades, consider buying me a coffee.
+            If this tool helped you think more clearly about your trades, consider <a href="https://www.buymeacoffee.com/veggeloo" target="_blank" rel="noopener noreferrer">buying me a coffee</a>.
           </p>
-          <a href="https://www.buymeacoffee.com/veggeloo" target="_blank" rel="noopener noreferrer">
-            <img
-              src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
-              alt="Buy Me A Coffee"
-              style={{ height: 60, width: 217, borderRadius: 8 }}
-            />
-          </a>
         </div>
       </section>
 
